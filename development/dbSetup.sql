@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS`employee`(
     id INT NOT NULL AUTO_INCREMENT,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
-    role_id INT(8,2) NOT NULL REFERENCES role.id,
-    manager_id INT(30) REFERENCES manager.id,
+    role_id INT(8) NOT NULL REFERENCES role.id,
+    manager_id INT(30) REFERENCES employee.id,
     PRIMARY KEY(id)
 );
