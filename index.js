@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
     port: 3306,
     user: "root",
     password: "password",
-    database: "employee_db"
+    database: "employee_cms_db"
 });
 
 // Connect
@@ -26,14 +26,16 @@ function createEmployee() {
   const query = connection.query(
     "INSERT INTO employee SET ?",
     {
-      name: "Tyler",
-      eaten: true,
+      first_name: "Tyler",
+      last_name: "Durden",
+      role_id: "5",
+      manager_id: "1",
     },
     function(err, res) {
       if (err) throw err;
       console.log(res.affectedRows + " employee inserted!\n");
       // Call updateemployee AFTER the INSERT completes
-      updateEmployee();
+      readEmployee();
     }
   );
 
@@ -47,22 +49,23 @@ function readEmployee() {
   connection.query("SELECT * FROM employee", function(err, res) {
     if (err) throw err;
     // Log all results of the SELECT statement
-    console.log(res);
+    console.table(res);
     // connection.end();
+    updateEmployee();
   });
 }
 
 // Update
 function updateEmployee() {
-  console.log("Updating all Rocky Road quantities...\n");
+  console.log("Updating employee position...\n");
   const query = connection.query(
     "UPDATE employee SET ? WHERE ?",
     [
       {
-        eaten: true
+        role_id: 1
       },
       {
-        name: "Impossible Employee"
+        first_name: "Tyler"
       }
     ],
     function(err, res) {
@@ -79,17 +82,18 @@ function updateEmployee() {
 
 // Delete
 function deleteEmployee() {
-  console.log("Deleting all Beet employee...\n");
+  console.log("Deleting Tyler Durden...\n");
   connection.query(
     "DELETE FROM employee WHERE ?",
     {
-      name: "Beet Employee"
+      first_name: "Tyler"
     },
     function(err, res) {
       if (err) throw err;
       console.log(res.affectedRows + " employee deleted!\n");
       // Call reademployee AFTER the DELETE completes
-      readEmployee();
+      // readEmployee();
+      connection.end();
     }
   );
 }
