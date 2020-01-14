@@ -5,23 +5,30 @@ USE`employee_cms_db`;
 
 CREATE TABLE IF NOT EXISTS`department`(
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(30) NOT NULL,
+    name VARCHAR(50) NOT NULL,
     PRIMARY KEY(id)
 );
 
 CREATE TABLE IF NOT EXISTS`role`(
     id INT NOT NULL AUTO_INCREMENT,
-    title VARCHAR(30) NOT NULL,
+    title VARCHAR(50) NOT NULL,
     salary DECIMAL(10,2) NOT NULL,
-    department_id INT(30) NOT NULL REFERENCES department.id,
+    department_id INT(10) NOT NULL REFERENCES department.id,
     PRIMARY KEY(id)
 );
 
 CREATE TABLE IF NOT EXISTS`employee`(
     id INT NOT NULL AUTO_INCREMENT,
-    first_name VARCHAR(30) NOT NULL,
-    last_name VARCHAR(30) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
     role_id INT(10) NOT NULL REFERENCES role.id,
     manager_id INT(10) REFERENCES employee.id,
     PRIMARY KEY(id)
 );
+
+
+
+USE`employee_cms_db`;
+SELECT a.first_name, a.last_name, b.title, c.name, a.manager_id
+      FROM employee a, role b, department c
+      WHERE a.role_id = b.id AND b.department_id = c.id;
