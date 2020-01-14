@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS`department`(
 CREATE TABLE IF NOT EXISTS`role`(
     id INT NOT NULL AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,
-    salary DECIMAL(8,2) NOT NULL,
+    salary DECIMAL(10,2) NOT NULL,
     department_id INT(30) NOT NULL REFERENCES department.id,
     PRIMARY KEY(id)
 );
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS`employee`(
     id INT NOT NULL AUTO_INCREMENT,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
-    role_id INT(8) NOT NULL REFERENCES role.id,
-    manager_id INT(30) REFERENCES employee.id,
+    role_id INT(10) NOT NULL REFERENCES role.id,
+    manager_id INT(10) REFERENCES employee.id,
     PRIMARY KEY(id)
 );
