@@ -24,7 +24,7 @@ let managerList = [];
 
 console.log("\x1b[36m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 console.log("\x1b[32m", "WELCOME TO YOUR EMPLOYEE EMS");
-console.log("\x1b[36m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","\x1b[37m");
+console.log("\x1b[36m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "\x1b[37m");
 
 //////////// Main function ///////////////
 function mainPrompt() {
@@ -38,7 +38,7 @@ function mainPrompt() {
       }
     });
     if (departmentList.length === 0) {
-      console.log("\x1b[33m","No departments have been created, you must create at least one department before adding roles or emplyees.","\x1b[37m");
+      console.log("\x1b[33m", "No departments have been created, you must create at least one department before adding roles or emplyees.", "\x1b[37m");
       createDepartment()
       return
     };
@@ -110,7 +110,7 @@ function mainPrompt() {
 function createData() {
   let choiceList = ["Employee", "Role", "Department", "Cancel"]
   if (roleList.length === 0) {
-    console.log("\x1b[33m","No roles have been created, you must create a role before adding an employee.","\x1b[37m");
+    console.log("\x1b[33m", "No roles have been created, you must create a role before adding an employee.", "\x1b[37m");
     choiceList = ["Role", "Department", "Cancel"]
   };
   inquirer.prompt([{
@@ -258,8 +258,10 @@ function createDepartment() {
 function readData() {
   let choiceList = ["Employee", "Role", "Department", "Cancel"];
   if (roleList.length === 0) {
+    console.log("\x1b[33m","There are no roles or employees in the database. You may view departments","\x1b[37m");
     choiceList = ["Department", "Cancel"];
   } else if (employeeList.length === 0) {
+    console.log("\x1b[33m","There are no employees in the database. You may view departments and roles","\x1b[37m");
     choiceList = ["Role", "Department", "Cancel"];
   }
   inquirer.prompt([{
@@ -291,7 +293,7 @@ function readData() {
 //////////////// View Employees /////////////////////
 function viewEmployee() {
   console.log("Selecting all employees...\n");
-  connection.query("SELECT a.id AS 'ID', a.first_name AS 'First Name', a.last_name AS 'Last Name', b.title AS 'Role', b.salary AS 'Salary' c.name AS 'Department', a.manager_id AS 'Manager ID' FROM employee a, role b, department c WHERE a.role_id = b.id AND b.department_id = c.id", function (err, res) {
+  connection.query("SELECT employee.id AS 'Employee ID', employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS 'Role', role.salary AS 'Salary', department.name AS 'Department', manager.first_name AS 'Manager First', manager.last_name AS 'Manager Last'  FROM employee LEFT JOIN employee AS manager ON  employee.manager_id=manager.id LEFT JOIN role ON employee.role_id=role.id LEFT JOIN department ON role.department_id=department.id;", function (err, res) {
     if (err) throw err;
     // Log all results of the SELECT statement
     console.table(res);
@@ -518,6 +520,8 @@ function deleteRole() {
   connection.query("SELECT * FROM employee", function (err, res) {
     if (err) throw err;
     rolesOnEmployees = res.map(object => object.roles_id);
+    console.log(rolesOnEmployees);
+    
     // Prompt
     inquirer.prompt([{
         name: "role_id",
@@ -526,9 +530,9 @@ function deleteRole() {
         choices: roleList
       }])
       .then(function (res) {
-        if (!rolesOnEmployees.includes(res.role_id)) {
+        if (!rolesOnEmployees.includes(res.role_id.value)) {
           connection.query(
-            "DELETE FROM roles WHERE ?", {
+            "DELETE FROM role WHERE ?", {
               id: res.role_id
             },
             function (err, res) {
@@ -562,7 +566,7 @@ function deleteDepartment() {
         choices: departmentList
       }])
       .then(function (res) {
-        if (!departmentInRoles.includes(res.department)) {
+        if (!departmentInRoles.includes(res.department.value)) {
           connection.query(
             "DELETE FROM department WHERE ?", {
               id: res.department
