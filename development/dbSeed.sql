@@ -10,11 +10,5 @@ INSERT INTO employee(first_name,last_name,role_id,manager_id) VALUES('Lara','Cro
 
 
 
-SELECT a.id AS 'ID', 
-a.first_name AS 'First Name',
-a.last_name AS 'Last Name',
-b.title AS 'Role',
-c.name AS 'Department',
-a.manager_id AS 'Manager ID' 
-FROM employee a, role b, department c, employee d,
-WHERE a.role_id = b.id AND b.department_id = c.id AND a manager_id = d.id; 
+SELECT employee.id AS 'Employee ID', employee.first_name AS 'First Name', employee.last_name AS 'Last Name', role.title AS 'Role', role.salary AS 'Salary', department.name AS 'Department', manager.first_name AS 'Manager First', manager.last_name AS 'Manager Last'  
+FROM employee LEFT JOIN employee AS manager ON  employee.manager_id=manager.id LEFT JOIN role ON employee.role_id=role.id LEFT JOIN department ON role.department_id=department.id; 
