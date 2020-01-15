@@ -9,11 +9,14 @@ CREATE TABLE IF NOT EXISTS`department`(
     PRIMARY KEY(id)
 );
 
+
 CREATE TABLE IF NOT EXISTS`role`(
     id INT NOT NULL AUTO_INCREMENT,
     title VARCHAR(50) NOT NULL,
     salary DECIMAL(10,2) NOT NULL,
-    department_id INT(10) NOT NULL REFERENCES department.id,
+    department_id INT(10) NOT NULL,
+    FOREIGN KEY (department_id) REFERENCES department.id
+    ON UPDATE CASCADE ON DELETE RESTRICT,
     PRIMARY KEY(id)
 );
 
@@ -21,8 +24,12 @@ CREATE TABLE IF NOT EXISTS`employee`(
     id INT NOT NULL AUTO_INCREMENT,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
-    role_id INT(10) NOT NULL REFERENCES role.id,
-    manager_id INT(10) REFERENCES employee.id,
+    role_id INT NOT NULL,
+    manager_id INT,
+    FOREIGN KEY (role_id) REFERENCES role.id
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (manager_id) REFERENCES manager.id
+    ON UPDATE CASCADE ON DELETE RESTRICT,
     PRIMARY KEY(id)
 );
 
