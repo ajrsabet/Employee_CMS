@@ -8,9 +8,7 @@ INSERT INTO role(title, salary, department_id) VALUES('General Manager',131557 ,
 INSERT INTO employee(first_name,last_name,role_id,manager_id) VALUES('Lara','Croft', 1, null),('Freddie','Mercury', 2, 1),('Violet','Evergarden', 3, 1),('Tyler','Durden', 4, 1),('Joan','Jett', 5, 1),('Connor', 'MacManus', 6, 1),('Murphy','MacManus', 7, 1);
 
 
-SELECT a.first_name, a.last_name, b.title AS Role, b.salary , c.name AS Department, a.manager_id
-      FROM employee a, role b, department c
-      WHERE a.role_id = b.id AND b.department_id = c.id;
+
 
 SELECT a.id AS 'ID', 
 a.first_name AS 'First Name',

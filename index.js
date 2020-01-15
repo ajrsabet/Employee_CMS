@@ -519,18 +519,23 @@ function deleteRole() {
   // get role data to validate delete
   connection.query("SELECT * FROM employee", function (err, res) {
     if (err) throw err;
-    rolesOnEmployees = res.map(object => object.roles_id);
-    console.log(rolesOnEmployees);
+    console.table(res);
+    rolesOnEmployees = res.map(object => object.role_id);
     
     // Prompt
     inquirer.prompt([{
-        name: "role_id",
+        name: "role",
         type: "list",
         message: "What the role that you would like to delete?",
         choices: roleList
       }])
       .then(function (res) {
-        if (!rolesOnEmployees.includes(res.role_id.value)) {
+        if (rolesOnEmployees.includes(res.role)) {
+          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+          console.log("\x1b[33m", "There are still employees with this role, delete or modify these employees before deleting this role");
+          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","\x1b[37m");
+          mainPrompt();
+        } else {
           connection.query(
             "DELETE FROM role WHERE ?", {
               id: res.role_id
@@ -541,10 +546,6 @@ function deleteRole() {
               mainPrompt();
             }
           );
-        } else {
-          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-          console.log("\x1b[33m", "There are still employees with this role, delete or modify these employees before deleting this role");
-          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         }
       })
       .catch(function (err) {
@@ -557,7 +558,11 @@ function deleteDepartment() {
   // get role data to validate delete
   connection.query("SELECT * FROM role", function (err, res) {
     if (err) throw err;
+    console.table(res);
+    
     departmentInRoles = res.map(object => object.department_id);
+    console.log(JSON.stringify(departmentInRoles));
+    
     // Prompt
     inquirer.prompt([{
         name: "department",
@@ -566,21 +571,24 @@ function deleteDepartment() {
         choices: departmentList
       }])
       .then(function (res) {
-        if (!departmentInRoles.includes(res.department.value)) {
-          connection.query(
-            "DELETE FROM department WHERE ?", {
-              id: res.department
-            },
-            function (err, res) {
-              if (err) throw err;
-              console.log(res.affectedRows + " Departments deleted!\n");
-              mainPrompt();
-            }
-          );
-        } else {
+        console.log(res);
+        
+        if (departmentInRoles.includes(res.department)) {
           console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
           console.log("\x1b[33m", "There are still roles connected to this department, delete or modify these roles before deleting this department");
-          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","\x1b[37m");
+          mainPrompt();
+        } else {
+            connection.query(
+              "DELETE FROM department WHERE ?", {
+                id: res.department
+              },
+              function (err, res) {
+                if (err) throw err;
+                console.log(res.affectedRows + " Departments deleted!\n");
+                mainPrompt();
+              }
+            );
         }
         mainPrompt();
       })
