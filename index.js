@@ -31,7 +31,6 @@ function mainPrompt() {
   // get departments data for inquire lists  
   connection.query("SELECT * FROM department", function (err, res) {
     if (err) throw err;
-    departmentList = [];
     departmentList = res.map(object => {
       return {
         name: object.name,
@@ -43,11 +42,10 @@ function mainPrompt() {
       createDepartment()
       return
     };
-  
+
     // get roles data for inquire lists
     connection.query("SELECT * FROM role", function (err, res) {
       if (err) throw err;
-      roleList = [];
       roleList = res.map(object => {
         return {
           name: object.title,
@@ -58,7 +56,6 @@ function mainPrompt() {
       // get employee data for inquire lists
       connection.query("SELECT * FROM employee", function (err, res) {
         if (err) throw err;
-        employeeList = [];
         employeeList = res.map(object => {
           return {
             name: `${object.first_name} ${object.last_name}`,
@@ -67,8 +64,7 @@ function mainPrompt() {
         });
 
         // add a "no manager option" to employee list to create a manager list
-        managerList = [];
-        managerList = employeeList;
+        managerList = employeeList.map(object => object);
         managerList.unshift({
           name: "no manager",
           value: "none"
@@ -389,10 +385,10 @@ function updateEmployeesRole() {
       connection.query(
         "UPDATE employee SET ? WHERE ?",
         [{
-            role_id: res.role},{
-            id: res.name
-          }
-        ],
+          role_id: res.role
+        }, {
+          id: res.name
+        }],
         function (err, res) {
           if (err) throw err;
           console.log(res.affectedRows + " employee updated!\n");
@@ -424,18 +420,20 @@ function updateEmployeesManager() {
       if (res.manager === "none") {
         res.manager = null
       }
+
       connection.query(
-        "UPDATE employee SET ? WHERE ?", {
-          manager_id: res.manager},{
+        "UPDATE employee SET ? WHERE ?", [{
+          manager_id: res.manager
+        }, {
           id: res.name
-        },
+        }],
         function (err, res) {
           if (err) throw err;
           console.log(res.affectedRows + " employee updated!\n");
           // Call deleteemployee AFTER the UPDATE completes
           mainPrompt()
         }
-      );
+      )
     })
     .catch(function (err) {
       console.log(err);
