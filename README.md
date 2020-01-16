@@ -1,91 +1,44 @@
 # Employee_CMS
-This app creates an interface to view and interact with information stored in an employee database. This app uses node, inquirer, and MySQL to interface information from the command line..
+This app creates an employee CMS, Cmployee Management System, interface to view and interact with information stored in an employee database. This app uses node.js, inquirer, and MySQL to interface information from the command line to be able to create, read, update, and delete information from a database.
 
-# Unit 12 MySQL Homework: Employee Tracker
+![Screenshot](./assets/Employee_CMS_Screenshot.png)
 
-Developers are often tasked with creating interfaces that make it easy for non-developers to view and interact with information stored in databases. Often these interfaces are known as **C**ontent **M**anagement **S**ystems. In this homework assignment, your challenge is to architect and build a solution for managing a company's employees using node, inquirer, and MySQL.
-
-## Instructions
-
-Design the following database schema containing three tables:
-
-![Database Schema](Assets/schema.png)
-
-* **department**:
-
-  * **id** - INT PRIMARY KEY
-  * **name** - VARCHAR(30) to hold department name
-
-* **role**:
-
-  * **id** - INT PRIMARY KEY
-  * **title** -  VARCHAR(30) to hold role title
-  * **salary** -  DECIMAL to hold role salary
-  * **department_id** -  INT to hold reference to department role belongs to
-
-* **employee**:
-
-  * **id** - INT PRIMARY KEY
-  * **first_name** - VARCHAR(30) to hold employee first name
-  * **last_name** - VARCHAR(30) to hold employee last name
-  * **role_id** - INT to hold reference to role employee has
-  * **manager_id** - INT to hold reference to another employee that manager of the current employee. This field may be null if the employee has no manager
-  
-Build a command-line application that at a minimum allows the user to:
-
-  * Add departments, roles, employees
-
-  * View departments, roles, employees
-
-  * Update employee roles
-
-Bonus points if you're able to:
-
-  * Update employee managers
-
-  * View employees by manager
-
-  * Delete departments, roles, and employees
-
-  * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
-
-We can frame this challenge as follows:
-
+## Business Need:
 ```
 As a business owner
 I want to be able to view and manage the departments, roles, and employees in my company
 So that I can organize and plan my business
 ```
 
-## Minimum Requirements
-
-* Functional application.
-
-* GitHub repository with a unique name and a README describing the project.
-
-* The command-line application should allow users to:
+## Functionality
+Once setup, the user can easily run the application by selecting options and answering questions displayed in the command line. These prompts allow them to do all of the following actions:
 
   * Add departments, roles, employees
 
-  * View departments, roles, employees
+  * View departments, roles, employees, employees by manager, and payroll budget by department
 
-  * Update employee roles
-
-## Bonus
-
-* The command-line application should allow users to:
-
-  * Update employee managers
-
-  * View employees by manager
+  * Update employee roles, employee managers
 
   * Delete departments, roles, and employees
 
-  * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
+## Requirements
+  1. mySQL workbench
+  2. most CL Terminals should work. A list can be found at https://www.npmjs.com/package/inquirer#support under the heading "Support (OS Terminals)"
 
+## Setup
+  1. Clone repository from github
+  2. Open a command prompt terminal and enter the following commands after navigating to the folder where you want the program to live:
+    * git clone git@github.com:ajrsabet/Employee_CMS.git
+    * npm install
+  3. UPDATE index.js with your mySQL password
 
-## Submission on BCS
+## Run
+  1. Open a command prompt terminal and navigating to the folder where you have installed this repository:
+    * node index.js
+  2. Navigate the program by following the prompts
+  3. On initial setup:
+    * Input options will be limited to control dependencies. You will first be prompted to add a department before you will be able to do anything else. Once you have at least one department, role, and employee then all options will be available to you.
 
-You are required to submit the following:
-
-* The URL of the GitHub repository
+  ```
+  Note: Employees are dependent on roles and roles are dependent on departments so you cannot delete a role/department without removing/changing the dependents (e.g. if Ted Baker (employee) is listed as an accountant (role) in Finance (department) then you cannot delete this role or department without transfering Ted to another possition.)
+  ```

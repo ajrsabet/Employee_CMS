@@ -31,6 +31,7 @@ function mainPrompt() {
   // get departments data for inquire lists  
   connection.query("SELECT * FROM department", function (err, res) {
     if (err) throw err;
+    departmentList = [];
     departmentList = res.map(object => {
       return {
         name: object.name,
@@ -42,10 +43,11 @@ function mainPrompt() {
       createDepartment()
       return
     };
-
+  
     // get roles data for inquire lists
     connection.query("SELECT * FROM role", function (err, res) {
       if (err) throw err;
+      roleList = [];
       roleList = res.map(object => {
         return {
           name: object.title,
@@ -56,6 +58,7 @@ function mainPrompt() {
       // get employee data for inquire lists
       connection.query("SELECT * FROM employee", function (err, res) {
         if (err) throw err;
+        employeeList = [];
         employeeList = res.map(object => {
           return {
             name: `${object.first_name} ${object.last_name}`,
@@ -64,6 +67,7 @@ function mainPrompt() {
         });
 
         // add a "no manager option" to employee list to create a manager list
+        managerList = [];
         managerList = employeeList;
         managerList.unshift({
           name: "no manager",
@@ -204,7 +208,7 @@ function createRole() {
       {
         name: "department",
         type: "list",
-        message: "What is the employee's department?",
+        message: "What is the roles's department?",
         choices: departmentList
       }
     ])
@@ -256,12 +260,12 @@ function createDepartment() {
 
 //////////////// Read Data MAIN /////////////////////
 function readData() {
-  let choiceList = ["Employee", "Role", "Department", "Cancel"];
+  let choiceList = ["Employee", "Role", "Department", "Department Budget", "Cancel"];
   if (roleList.length === 0) {
-    console.log("\x1b[33m","There are no roles or employees in the database. You may view departments","\x1b[37m");
+    console.log("\x1b[33m", "There are no roles or employees in the database. You may view departments", "\x1b[37m");
     choiceList = ["Department", "Cancel"];
   } else if (employeeList.length === 0) {
-    console.log("\x1b[33m","There are no employees in the database. You may view departments and roles","\x1b[37m");
+    console.log("\x1b[33m", "There are no employees in the database. You may view departments and roles", "\x1b[37m");
     choiceList = ["Role", "Department", "Cancel"];
   }
   inquirer.prompt([{
@@ -280,6 +284,9 @@ function readData() {
           break;
         case "Department":
           viewDepartment();
+          break;
+        case "Department Budget":
+          viewDepartmentBudget();
           break;
         case "Cancel":
           mainPrompt();
@@ -303,7 +310,7 @@ function viewEmployee() {
 //////////////// View Roles /////////////////////
 function viewRole() {
   console.log("Selecting all roles...\n");
-  connection.query("SELECT b.title AS 'Role', c.name AS 'Department' FROM role b, department c WHERE b.department_id = c.id", function (err, res) {
+  connection.query("SELECT b.id,b.title AS 'Role', b.salary AS 'Salary', c.name AS 'Department' FROM role b, department c WHERE b.department_id = c.id", function (err, res) {
     if (err) throw err;
     // Log all results of the SELECT statement
     console.table(res);
@@ -317,6 +324,15 @@ function viewDepartment() {
     if (err) throw err;
     // Log all results of the SELECT statement
     console.table(res);
+    mainPrompt()
+  });
+};
+//////////////// View Budgets by Department /////////////////////
+function viewDepartmentBudget() {
+  console.log("Selecting all departments...\n");
+  connection.query("SELECT SUM(salary),department.name FROM role JOIN department ON role.department_id = department.id GROUP BY role.department_id;", function (err, resDep) {
+    if (err) throw err;
+    console.table(resDep);
     mainPrompt()
   });
 };
@@ -373,9 +389,7 @@ function updateEmployeesRole() {
       connection.query(
         "UPDATE employee SET ? WHERE ?",
         [{
-            role_id: res.role
-          },
-          {
+            role_id: res.role},{
             id: res.name
           }
         ],
@@ -412,7 +426,7 @@ function updateEmployeesManager() {
       }
       connection.query(
         "UPDATE employee SET ? WHERE ?", {
-          manager_id: res.manager,
+          manager_id: res.manager},{
           id: res.name
         },
         function (err, res) {
@@ -521,7 +535,7 @@ function deleteRole() {
     if (err) throw err;
     console.table(res);
     rolesOnEmployees = res.map(object => object.role_id);
-    
+
     // Prompt
     inquirer.prompt([{
         name: "role",
@@ -533,8 +547,9 @@ function deleteRole() {
         if (rolesOnEmployees.includes(res.role)) {
           console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
           console.log("\x1b[33m", "There are still employees with this role, delete or modify these employees before deleting this role");
-          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","\x1b[37m");
+          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "\x1b[37m");
           mainPrompt();
+          return;
         } else {
           connection.query(
             "DELETE FROM role WHERE ?", {
@@ -559,10 +574,10 @@ function deleteDepartment() {
   connection.query("SELECT * FROM role", function (err, res) {
     if (err) throw err;
     console.table(res);
-    
+
     departmentInRoles = res.map(object => object.department_id);
     console.log(JSON.stringify(departmentInRoles));
-    
+
     // Prompt
     inquirer.prompt([{
         name: "department",
@@ -572,23 +587,24 @@ function deleteDepartment() {
       }])
       .then(function (res) {
         console.log(res);
-        
+
         if (departmentInRoles.includes(res.department)) {
           console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
           console.log("\x1b[33m", "There are still roles connected to this department, delete or modify these roles before deleting this department");
-          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~","\x1b[37m");
+          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "\x1b[37m");
           mainPrompt();
+          return;
         } else {
-            connection.query(
-              "DELETE FROM department WHERE ?", {
-                id: res.department
-              },
-              function (err, res) {
-                if (err) throw err;
-                console.log(res.affectedRows + " Departments deleted!\n");
-                mainPrompt();
-              }
-            );
+          connection.query(
+            "DELETE FROM department WHERE ?", {
+              id: res.department
+            },
+            function (err, res) {
+              if (err) throw err;
+              console.log(res.affectedRows + " Departments deleted!\n");
+              mainPrompt();
+            }
+          );
         }
         mainPrompt();
       })

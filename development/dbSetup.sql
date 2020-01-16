@@ -27,12 +27,15 @@ CREATE TABLE IF NOT EXISTS`employee`(
     last_name VARCHAR(50) NOT NULL,
     role_id INT NOT NULL,
     manager_id INT,
+    
     FOREIGN KEY (role_id) 
     REFERENCES role(id)
     ON UPDATE CASCADE ON DELETE RESTRICT,
+    
     FOREIGN KEY (manager_id) 
     REFERENCES employee(id)
     ON UPDATE CASCADE ON DELETE RESTRICT,
+    
     PRIMARY KEY(id)
 );
 
