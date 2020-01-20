@@ -505,34 +505,47 @@ function deleteData() {
 }
 //////////////// Delete Employee ////////////////////
 function deleteEmployee() {
-  inquirer.prompt([{
-      name: "name",
-      type: "list",
-      message: "What first name of the employee that you would like to delete?",
-      choices: employeeList,
-    }])
-    .then(function (res) {
-      connection.query(
-        "DELETE FROM employee WHERE ?", {
-          id: res.name
-        },
-        function (err, res) {
-          if (err) throw err;
-          console.log(res.affectedRows + " employee deleted!\n");
-          mainPrompt()
-        });
-    })
-    .catch(function (err) {
-      console.log(err);
-    });
+  connection.query("SELECT * FROM employee", function (err, resMan) {
+    if (err) throw err;
+    managersOnEmployees = resMan.map(object => object.manager_id);
+
+    // Prompt
+    inquirer.prompt([{
+        name: "name",
+        type: "list",
+        message: "What first name of the employee that you would like to delete?",
+        choices: employeeList,
+      }])
+      .then(function (resPrompt) {
+        if (managersOnEmployees.includes(resPrompt.name)) {
+          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+          console.log("\x1b[33m", "This employee is a manager of other employees, delete or modify the other employees before deleting this employee");
+          console.log("\x1b[31m", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", "\x1b[37m");
+          mainPrompt();
+          return;
+        } else {
+          connection.query(
+            "DELETE FROM employee WHERE ?", {
+              id: res.name
+            },
+            function (err, res) {
+              if (err) throw err;
+              console.log(res.affectedRows + " employee deleted!\n");
+              mainPrompt()
+            });
+        }
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  });
 };
 //////////////// Delete Role ////////////////////
 function deleteRole() {
   // get role data to validate delete
-  connection.query("SELECT * FROM employee", function (err, res) {
+  connection.query("SELECT * FROM employee", function (err, resEmp) {
     if (err) throw err;
-    console.table(res);
-    rolesOnEmployees = res.map(object => object.role_id);
+    rolesOnEmployees = resEmp.map(object => object.role_id);
 
     // Prompt
     inquirer.prompt([{
